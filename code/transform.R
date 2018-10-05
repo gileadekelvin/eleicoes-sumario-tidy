@@ -1,4 +1,4 @@
-dados_presidente_partido <- function(data_path){
+dados_presidente_tidy <- function(data_path){
     # data_path - caminho para os dados votos_tidy_long
     library(tidyverse)
     library(readr)
@@ -15,7 +15,7 @@ dados_presidente_partido <- function(data_path){
         
         group_by(ano, turno) %>% 
         mutate(total_votos = sum(votos)) %>% 
-        mutate(porcentagem = round((votos/total_votos) * 100, digits = 2)) %>% 
+        mutate(porcentagem = (votos/total_votos) * 100) %>% 
         ungroup() %>% 
         
         select(estado, nome, partido, coligacao, votos, porcentagem, cargo, ano, turno)
@@ -23,20 +23,33 @@ dados_presidente_partido <- function(data_path){
     return(votos_presidente)
 }
 
+dados_presidente_partido <- function(data_path){
+    # data_path - caminho para os dados votos_tidy_long
+    library(tidyverse)
+    library(readr)
+    
+    votos_presidente <- dados_presidente_tidy(data_path) %>% 
+        mutate(porcentagem = round(porcentagem, digits = 2))
+    
+    return(votos_presidente)
+}
+
 dados_presidente_agrupado <- function(data_path) {
-    votos <- dados_presidente_partido(data_path)
+    votos <- dados_presidente_tidy(data_path)
     
     votos_agrupado <- votos %>% 
         group_by(partido, ano, turno) %>% 
         summarise(nome = first(nome),
                   votos = sum(votos),
-                  porcentagem = sum(porcentagem))
+                  porcentagem = sum(porcentagem)) %>% 
+        mutate(porcentagem = round(porcentagem, digits = 2))
     
     return(votos_agrupado)
 }
 
 dados_presidente_disputa_turno <- function(data_path) {
-    votos <- dados_presidente_partido(data_path) %>% 
+    
+    votos <- dados_presidente_tidy(data_path) %>% 
         mutate(nome = ifelse(grepl("Collor", nome), "Fernando Collor", nome)) %>% 
         mutate(nome = ifelse(grepl("Lula", nome), "Luiz Inácio Lula da Silva", nome)) %>% 
         mutate(nome = ifelse(grepl("Geraldo", nome), "Geraldo Alckmin", nome)) %>% 
@@ -45,7 +58,7 @@ dados_presidente_disputa_turno <- function(data_path) {
     votos_turno <- votos %>% 
         group_by(nome, ano, turno) %>% 
         summarise(votos = sum(votos),
-                  porcentagem = sum(porcentagem)) %>% 
+                  porcentagem = round(sum(porcentagem), digits = 2)) %>% 
         ungroup() %>% 
         group_by(ano, nome) %>% 
         mutate(n = n()) %>% 
