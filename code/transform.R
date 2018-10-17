@@ -94,6 +94,40 @@ dados_presidente_disputa_turno <- function(data_path) {
     return(votos_turno)
 }
 
+dados_presidente_turno_estados <- function(data_path) {
+    
+    votos <- import_data_presidente(data_path) %>% 
+        mutate(nome = ifelse(grepl("Collor", nome), "Fernando Collor", nome)) %>% 
+        mutate(nome = ifelse(grepl("Lula", nome), "Luiz Inácio Lula da Silva", nome)) %>% 
+        mutate(nome = ifelse(grepl("Geraldo", nome), "Geraldo Alckmin", nome)) %>% 
+        mutate(nome = ifelse(grepl("Serra", nome), "José Serra", nome)) %>% 
+        mutate(estado = ifelse(grepl("Federal", estado), "Distrito Federal", estado)) %>% 
+        mutate(estado = ifelse(grepl("Janeiro", estado), "Rio de Janeiro", estado)) %>% 
+        mutate(estado = ifelse(grepl("Santo", estado), "Espírito Santo", estado))
+    
+    votos_turno <- votos %>% 
+        group_by(estado, ano, turno) %>% 
+        mutate(total_votos_estado = sum(votos)) %>% 
+        ungroup() %>% 
+        
+        group_by(estado, nome, ano, turno) %>% 
+        mutate(porcentagem = round((votos/total_votos_estado) * 100, digits = 2)) %>%
+        ungroup() %>% 
+        
+        group_by(estado, nome, ano) %>% 
+        mutate(n = n()) %>% 
+        filter(n > 1) %>% 
+        select(-n) %>% 
+        ungroup() %>% 
+        
+        mutate(candidato = nome) %>% 
+        mutate(nome = paste0(ano, " - ", nome)) %>% 
+        arrange(nome) %>% 
+        select(estado, candidato, votos, ano, turno, nome, porcentagem)
+    
+    return(votos_turno)
+}
+
 dados_presidente_estado_2014 <- function(data_path) {
     
     votos <- import_data_presidente(data_path)
@@ -147,7 +181,11 @@ export_data <- function() {
     votos_turno <- dados_presidente_disputa_turno(data_path)
     write.csv(votos_turno, here("data/votos_presidente_segundo_turno.csv"), row.names = FALSE)
     
+    votos_turno_estado <- dados_presidente_turno_estados(data_path)
+    write.csv(votos_turno_estado, here("data/votos_presidente_turno_estado.csv"), row.names = FALSE)
+    
     votos_estado_ano <- dados_presidente_estado_2014(data_path)
     write.csv(votos_estado_ano, here("data/votos_presidente_estado_ano.csv"), row.names = FALSE)
+    
 }
 
