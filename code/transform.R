@@ -122,8 +122,9 @@ dados_presidente_turno_estados <- function(data_path) {
         
         mutate(candidato = nome) %>% 
         mutate(nome = paste0(ano, " - ", nome)) %>% 
+        mutate(candidato_estado = paste0(estado, " - ", nome)) %>% 
         arrange(nome) %>% 
-        select(estado, candidato, votos, ano, turno, nome, porcentagem)
+        select(estado, candidato, candidato_estado, votos, ano, turno, nome, porcentagem)
     
     return(votos_turno)
 }
