@@ -1,7 +1,9 @@
 # Eleições tidy
 
-Pelo menos nos dados. 
+Confira os resultados nos seguintes posts
 
-São [os dados compilados pelo prof. Jairo Nicolau](https://jaironicolau.github.io/deb/) (todos os créditos vão para ele portanto) em versão tidy data. Criado para que eu consiga fazer visualizações com ferramentas tidydata-friendly. 
+https://beta.observablehq.com/@gileadekelvin/uma-breve-historia-das-eleicoes-no-brasil
 
-Dados estão em `data/`. Código que importa em `code/lib.R`.
+https://beta.observablehq.com/@gileadekelvin/um-recorte-da-historia-das-eleicoes
+
+
